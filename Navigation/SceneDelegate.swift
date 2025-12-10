@@ -26,6 +26,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         mainCoordinator.start()
 
         self.window = window
+
+        let appConfiguration = [
+            AppConfiguration.first(firstString: "https://swapi.dev/api/people/1"),
+            AppConfiguration.second(secondString: "https://swapi.dev/api/vehicles/14"),
+            AppConfiguration.third(thirdString: "https://swapi.dev/api/planets/1")
+        ].randomElement()!
+
+        NetworkService.request(for: appConfiguration)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
