@@ -9,6 +9,9 @@ target 'Navigation' do
 
 pod 'SnapKit', '~> 5.0.0'
 
+pod 'FirebaseAuth'
+pod 'FirebaseFirestore'
+
 end
 
 target 'StorageService' do

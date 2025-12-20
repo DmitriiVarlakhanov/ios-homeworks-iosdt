@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class LogInViewController: UIViewController {
 
@@ -48,6 +49,12 @@ class LogInViewController: UIViewController {
             for: .editingDidBegin
         )
 
+        emailOrPhoneTextField.addTarget(
+            self,
+            action: #selector(enableOrDisableSignUpAndLogInButtons),
+            for: .editingDidEnd
+        )
+
         return emailOrPhoneTextField
     }()
 
@@ -74,6 +81,12 @@ class LogInViewController: UIViewController {
             self,
             action: #selector(invalidateTimer),
             for: .editingDidBegin
+        )
+
+        passwordTextField.addTarget(
+            self,
+            action: #selector(enableOrDisableSignUpAndLogInButtons),
+            for: .editingDidEnd
         )
 
         return passwordTextField
@@ -116,6 +129,8 @@ class LogInViewController: UIViewController {
         logInButton.layer.cornerRadius = 10
 
         logInButton.addTarget(self, action: #selector(logInButtonTapped), for: .touchUpInside)
+
+        logInButton.isEnabled = false
 
         return logInButton
     }()
@@ -188,7 +203,28 @@ class LogInViewController: UIViewController {
         return activityIndicator
     }()
 
-    var logInDelegate: LogInViewControllerDelegate?
+    private lazy var signUpButton: UIButton = {
+        let signUpButton = UIButton()
+
+        signUpButton.translatesAutoresizingMaskIntoConstraints = false
+        signUpButton.setTitle("Sign Up", for: .normal)
+        signUpButton.setTitleColor(.white, for: .normal)
+        signUpButton.titleLabel?.font = UIFont.systemFont(ofSize: 16)
+        signUpButton.setBackgroundImage(UIImage(named: "PixelVKColor"), for: .normal)
+        signUpButton.alpha = 1.0
+
+        signUpButton.clipsToBounds = true
+
+        signUpButton.layer.cornerRadius = 10
+
+        signUpButton.addTarget(self, action: #selector(signUp), for: .touchUpInside)
+
+        signUpButton.isEnabled = false
+
+        return signUpButton
+    }()
+
+    var logInDelegate: LogInViewControllerDelegate? = LogInInspector()
 
     var timer: Timer?
 
@@ -218,25 +254,30 @@ class LogInViewController: UIViewController {
     // MARK: - Actions
 
     @objc func logInButtonTapped() {
-        do {
-            try logInButtonTappedNotObjc()
-        } catch MyError.unauthorized {
-            let alertController = UIAlertController(
-                title: "Неверный логин или пароль (.unauthorized)",
-                message: "Повторите попытку",
-                preferredStyle: .alert
-            )
+        if logInDelegate!.check(
+            login: self.emailOrPhoneTextField.text ?? "",
+            password: self.passwordTextField.text ?? ""
+        ) {
+            do {
+                try logInButtonTappedNotObjc()
+            } catch MyError.unauthorized {
+                let alertController = UIAlertController(
+                    title: "Неверный логин или пароль (.unauthorized)",
+                    message: "Повторите попытку",
+                    preferredStyle: .alert
+                )
 
-            let action = UIAlertAction(
-                title: "OK",
-                style: .cancel
-            )
+                let action = UIAlertAction(
+                    title: "OK",
+                    style: .cancel
+                )
 
-            alertController.addAction(action)
+                alertController.addAction(action)
 
-            self.present(alertController, animated: true)
-        } catch {
-            print("Unknowed error")
+                self.present(alertController, animated: true)
+            } catch {
+                print("Unknowed error")
+            }
         }
     }
 
@@ -300,6 +341,23 @@ class LogInViewController: UIViewController {
         self.timer?.invalidate()
     }
 
+    @objc func signUp() {
+        self.logInDelegate!.signUp(
+            login: self.emailOrPhoneTextField.text ?? "",
+            password: self.passwordTextField.text ?? ""
+        )
+    }
+
+    @objc func enableOrDisableSignUpAndLogInButtons() {
+        if (self.emailOrPhoneTextField.text != "" && self.passwordTextField.text != "") {
+            logInButton.isEnabled = true
+            signUpButton.isEnabled = true
+        } else {
+            logInButton.isEnabled = false
+            signUpButton.isEnabled = false
+        }
+    }
+
     // MARK: - Private
 
     private func setupConstraints() {
@@ -336,18 +394,22 @@ class LogInViewController: UIViewController {
             generatePassword.topAnchor.constraint(equalTo: logInButton.bottomAnchor, constant: 16),
             generatePassword.heightAnchor.constraint(equalToConstant: 50),
             generatePassword.widthAnchor.constraint(equalToConstant: 150),
-            generatePassword.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 
             bruteForce.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             bruteForce.topAnchor.constraint(equalTo: logInButton.bottomAnchor, constant: 16),
             bruteForce.heightAnchor.constraint(equalToConstant: 50),
             bruteForce.widthAnchor.constraint(equalToConstant: 150),
-            bruteForce.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 
             activityIndicator.topAnchor.constraint(equalTo: passwordTextField.topAnchor),
             activityIndicator.trailingAnchor.constraint(equalTo: passwordTextField.trailingAnchor),
             activityIndicator.heightAnchor.constraint(equalToConstant: 50),
-            activityIndicator.widthAnchor.constraint(equalToConstant: 50)
+            activityIndicator.widthAnchor.constraint(equalToConstant: 50),
+
+            signUpButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            signUpButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            signUpButton.topAnchor.constraint(equalTo: bruteForce.bottomAnchor, constant: 16),
+            signUpButton.heightAnchor.constraint(equalToConstant: 45),
+            signUpButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
 
@@ -361,6 +423,7 @@ class LogInViewController: UIViewController {
         contentView.addSubview(logInButton)
         contentView.addSubview(generatePassword)
         contentView.addSubview(bruteForce)
+        contentView.addSubview(signUpButton)
 
         passwordTextField.addSubview(activityIndicator)
     }
@@ -395,7 +458,7 @@ class LogInViewController: UIViewController {
 
     private func createTimer() {
         self.timer = Timer.scheduledTimer(
-            timeInterval: 30,
+            timeInterval: 120,
             target: self,
             selector: #selector(showHint),
             userInfo: nil,

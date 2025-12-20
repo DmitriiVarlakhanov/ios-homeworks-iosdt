@@ -10,7 +10,7 @@ import UIKit
 class TestUserService: UserService {
 
     var testUser: User? = User(
-        login: "test",
+        login: "test@gmail.com",
         fullName: "Test Name",
         avatar: UIImage(systemName: "person.crop.circle")!,
         status: "Test Status"

@@ -10,4 +10,6 @@ import UIKit
 protocol LogInViewControllerDelegate {
 
     func check(login: String, password: String) -> Bool
+
+    func signUp(login: String, password: String)
 }
