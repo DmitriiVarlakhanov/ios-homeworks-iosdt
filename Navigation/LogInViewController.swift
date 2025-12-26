@@ -25,7 +25,7 @@ class LogInViewController: UIViewController {
         return iconImageView
     }()
 
-    private lazy var emailOrPhoneTextField: MyCustomTestField = {
+    lazy var emailOrPhoneTextField: MyCustomTestField = {
         let emailOrPhoneTextField = MyCustomTestField(insets: UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12))
 
         emailOrPhoneTextField.placeholder = "Email or phone"
@@ -58,7 +58,7 @@ class LogInViewController: UIViewController {
         return emailOrPhoneTextField
     }()
 
-    private lazy var passwordTextField: MyCustomTestField = {
+    lazy var passwordTextField: MyCustomTestField = {
         let passwordTextField = MyCustomTestField(insets: UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12))
 
         passwordTextField.placeholder = "Password"
@@ -224,7 +224,7 @@ class LogInViewController: UIViewController {
         return signUpButton
     }()
 
-    var logInDelegate: LogInViewControllerDelegate? = LogInInspector()
+    var logInDelegate: LogInViewControllerDelegate?
 
     var timer: Timer?
 
@@ -254,31 +254,11 @@ class LogInViewController: UIViewController {
     // MARK: - Actions
 
     @objc func logInButtonTapped() {
-        if logInDelegate!.check(
-            login: self.emailOrPhoneTextField.text ?? "",
-            password: self.passwordTextField.text ?? ""
-        ) {
-            do {
-                try logInButtonTappedNotObjc()
-            } catch MyError.unauthorized {
-                let alertController = UIAlertController(
-                    title: "Неверный логин или пароль (.unauthorized)",
-                    message: "Повторите попытку",
-                    preferredStyle: .alert
-                )
+        self.logInDelegate?.logInViewContorller = self
 
-                let action = UIAlertAction(
-                    title: "OK",
-                    style: .cancel
-                )
+        self.logInDelegate!.check(login: emailOrPhoneTextField.text ?? "", password: passwordTextField.text ?? "")
 
-                alertController.addAction(action)
-
-                self.present(alertController, animated: true)
-            } catch {
-                print("Unknowed error")
-            }
-        }
+        self.logInButtonTappedNotObjc()
     }
 
     @objc func keyboardWillShow(_ notification: NSNotification) {
@@ -470,27 +450,8 @@ class LogInViewController: UIViewController {
         // подсказки после 30 секунд ожидания действия ввода.
     }
 
-    private func logInButtonTappedNotObjc() throws {
-#if DEBUG
-        let service = TestUserService()
-#else
-        let service = CurrentUserService()
-#endif
-        guard service.testUser != nil else {
-            preconditionFailure("User must not be nil")
-        }
-
-        if service.loginCheck(login: emailOrPhoneTextField.text ?? "") != nil && self.logInDelegate!.check(login: emailOrPhoneTextField.text ?? "", password: passwordTextField.text ?? "") {
-            let profileViewController = ProfileViewController()
-
-            profileViewController.user = service.testUser
-
-            profileCoordinator?.goToProfileViewController(profileViewController: profileViewController)
-
+    private func logInButtonTappedNotObjc() {
             self.timer?.invalidate()
-        } else {
-            throw MyError.unauthorized
-        }
     }
 }
 

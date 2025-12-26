@@ -11,7 +11,7 @@ protocol CheckerServiceProtocol {
 
     // MARK: - Type methods
 
-    static func checkCredentials(email: String, password: String) -> Void
+    static func checkCredentials(email: String, password: String, completion: @escaping (Bool) -> Void)
 
     static func signUp(email: String, password: String)
 }

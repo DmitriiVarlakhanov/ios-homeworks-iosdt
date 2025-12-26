@@ -12,10 +12,11 @@ class CheckerService: CheckerServiceProtocol {
 
     // MARK: - Type methods
 
-    static func checkCredentials(email: String, password: String) {
+    static func checkCredentials(email: String, password: String, completion: @escaping (Bool) -> Void) {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
-                print(error.localizedDescription)
+
+                print(error)
 
                 let alertController = UIAlertController(
                     title: "Authentication Error",
@@ -33,6 +34,12 @@ class CheckerService: CheckerServiceProtocol {
                 let topViewController = getTopViewControllerForScene()!
 
                 topViewController.present(alertController, animated: true)
+
+                completion(false)
+            }
+
+            if let authResult = authResult {
+                completion(true)
             }
         }
     }
