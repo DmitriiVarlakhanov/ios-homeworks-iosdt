@@ -9,5 +9,11 @@ import UIKit
 
 protocol LogInViewControllerDelegate {
 
-    func check(login: String, password: String) -> Bool
+    var logInViewContorller: LogInViewController? { get set }
+
+    var checkValue: Bool? { get set }
+
+    func check(login: String, password: String)
+
+    func signUp(login: String, password: String)
 }

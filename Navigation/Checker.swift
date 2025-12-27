@@ -15,8 +15,8 @@ class Checker {
         return instatnce
     }()
 
-    private let login: String = "test"
-    private let password: String = "test"
+    private let login: String = "test@gmail.com"
+    private let password: String = "123456"
 
     private init() {}
 
