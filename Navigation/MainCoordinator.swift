@@ -38,10 +38,11 @@ class MainCoordinator: CoordinatorProtocol {
         profileCoordinator?.start()
 
         navigationController.viewControllers = [tabBarController]
-            
+
         tabBarController.viewControllers = [
             feedCoordinator?.feedViewController ?? UIViewController(),
             profileCoordinator?.logInViewController ?? UIViewController(),
+            UINavigationController(rootViewController: FileManagerViewController())
         ]
     }
 }
