@@ -37,12 +37,16 @@ class MainCoordinator: CoordinatorProtocol {
         feedCoordinator?.start()
         profileCoordinator?.start()
 
+        let keychainViewController = KeychainViewController()
+
         navigationController.viewControllers = [tabBarController]
 
         tabBarController.viewControllers = [
             feedCoordinator?.feedViewController ?? UIViewController(),
             profileCoordinator?.logInViewController ?? UIViewController(),
-            UINavigationController(rootViewController: FileManagerViewController())
+            keychainViewController
         ]
+
+        tabBarController.selectedIndex = 2
     }
 }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "a7f8d3303ab7f12df4865aef063e34efc308a2e28e4b25fd238406a23e78c60d",
+  "originHash" : "94b413cf4b6eafd181b7156e8dcf7756c97fab2f6fe578657228c0eb35450997",
   "pins" : [
     {
       "identity" : "iosintpackage",
@@ -8,6 +8,24 @@
       "state" : {
         "revision" : "e1cc0e1b76d7cb8f770d903d85ae9ed91ae026bd",
         "version" : "3.2.3"
+      }
+    },
+    {
+      "identity" : "keychain-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/evgenyneu/keychain-swift",
+      "state" : {
+        "revision" : "5e1b02b6a9dac2a759a1d5dbc175c86bd192a608",
+        "version" : "24.0.0"
+      }
+    },
+    {
+      "identity" : "keychainaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e0c7eebc5a4465a3c4680764f26b7a61f567cdaf"
       }
     }
   ],

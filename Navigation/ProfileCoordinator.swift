@@ -25,7 +25,8 @@ class ProfileCoordinator: CoordinatorProtocol {
 
         logInViewController.tabBarItem = UITabBarItem(
             title: "Profile",
-            image: UIImage(systemName: "person.crop.circle") , tag: 1
+            image: UIImage(systemName: "person.crop.circle"),
+            tag: 2
         )
 
         self.logInViewController = logInViewController
