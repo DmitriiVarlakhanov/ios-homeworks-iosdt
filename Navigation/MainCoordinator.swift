@@ -39,14 +39,19 @@ class MainCoordinator: CoordinatorProtocol {
 
         let keychainViewController = KeychainViewController()
 
+        let realmMainViewController = RealmMainViewController()
+
+        realmMainViewController.mainNavigationController = self.navigationController
+
         navigationController.viewControllers = [tabBarController]
 
         tabBarController.viewControllers = [
             feedCoordinator?.feedViewController ?? UIViewController(),
             profileCoordinator?.logInViewController ?? UIViewController(),
-            keychainViewController
+            keychainViewController,
+            realmMainViewController
         ]
 
-        tabBarController.selectedIndex = 2
+        tabBarController.selectedIndex = 3
     }
 }
