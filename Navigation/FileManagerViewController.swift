@@ -11,8 +11,6 @@ class FileManagerViewController: UIViewController {
 
     // MARK: - Properties
 
-    private let fileManagerModel = FileManagerModel()
-
     private lazy var addPhotoButton: UIBarButtonItem = {
         let addPhotoButton = UIBarButtonItem(
             image: UIImage(systemName: "photo.badge.plus"),
@@ -65,9 +63,17 @@ class FileManagerViewController: UIViewController {
         self.setupConstraints()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        SettingViewController().sortingOnOff()
+
+        self.tableView.reloadData()
+    }
+
     // MARK: - Actions
 
-    @objc private func addPhotoButtonTapped() {
+    @objc func addPhotoButtonTapped() {
         let imagePickerController = UIImagePickerController()
 
         imagePickerController.sourceType = .photoLibrary
@@ -113,7 +119,7 @@ extension FileManagerViewController: UIImagePickerControllerDelegate, UINavigati
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let url = info[UIImagePickerController.InfoKey.imageURL] as! URL
 
-        fileManagerModel.addItem(url: url)
+        FileManagerModel.shared.addItem(url: url)
 
         self.tableView.reloadData()
 
@@ -123,7 +129,7 @@ extension FileManagerViewController: UIImagePickerControllerDelegate, UINavigati
 
 extension FileManagerViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fileManagerModel.items.count
+        return FileManagerModel.shared.itemsForSorting.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -134,7 +140,7 @@ extension FileManagerViewController: UITableViewDataSource {
             fatalError("could not dequeueReusableCell")
         }
 
-        cell.update(modelItem: fileManagerModel.items[indexPath.row])
+        cell.update(modelItem: FileManagerModel.shared.itemsForSorting[indexPath.row])
 
         return cell
     }
@@ -145,7 +151,7 @@ extension FileManagerViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            fileManagerModel.removeItem(at: indexPath.row)
+            FileManagerModel.shared.removeItem(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }

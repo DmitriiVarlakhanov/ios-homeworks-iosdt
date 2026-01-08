@@ -1,5 +1,5 @@
 {
-  "originHash" : "a7f8d3303ab7f12df4865aef063e34efc308a2e28e4b25fd238406a23e78c60d",
+  "originHash" : "653be2e943616831d3fbc2ea1dcd02f6a01ca0b97e0c471d50dae733d9402673",
   "pins" : [
     {
       "identity" : "iosintpackage",
@@ -8,6 +8,42 @@
       "state" : {
         "revision" : "e1cc0e1b76d7cb8f770d903d85ae9ed91ae026bd",
         "version" : "3.2.3"
+      }
+    },
+    {
+      "identity" : "keychain-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/evgenyneu/keychain-swift",
+      "state" : {
+        "revision" : "5e1b02b6a9dac2a759a1d5dbc175c86bd192a608",
+        "version" : "24.0.0"
+      }
+    },
+    {
+      "identity" : "keychainaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e0c7eebc5a4465a3c4680764f26b7a61f567cdaf"
+      }
+    },
+    {
+      "identity" : "realm-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/realm/realm-core.git",
+      "state" : {
+        "revision" : "cccb3ca9e26ec452a29f2f0d4050d1e38b8a3d43",
+        "version" : "14.14.0"
+      }
+    },
+    {
+      "identity" : "realm-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/realm/realm-swift",
+      "state" : {
+        "branch" : "master",
+        "revision" : "c22f9303d446fc3c044e4c151ed19597464b6bd7"
       }
     }
   ],

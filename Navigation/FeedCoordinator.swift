@@ -24,7 +24,8 @@ class FeedCoordinator: CoordinatorProtocol {
 
         feedViewController.tabBarItem = UITabBarItem(
             title: "Feed",
-            image: UIImage(systemName: "globe") , tag: 0
+            image: UIImage(systemName: "globe"),
+            tag: 1
         )
 
         self.feedViewController = feedViewController

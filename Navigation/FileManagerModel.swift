@@ -11,19 +11,27 @@ final class FileManagerModel {
 
     // MARK: - Properties
 
-    var path: URL {
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    }
+    static let shared = FileManagerModel()
+
+    var path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+
+    var itemsForSorting: [URL] = []
 
     var items: [URL] {
-        var items = try! FileManager.default.contentsOfDirectory(
-            at: path,
-            includingPropertiesForKeys: nil,
-            options: .skipsHiddenFiles
-        )
+        get {
+            let items = try! FileManager.default.contentsOfDirectory(
+                at: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0],
+                includingPropertiesForKeys: nil,
+                options: .skipsHiddenFiles
+            )
 
-        return items
+            return items
+        }
     }
+
+    // MARK: - Lifecycle
+
+    private init() {}
 
     // MARK: - Public
 
@@ -34,14 +42,20 @@ final class FileManagerModel {
 
         do {
             try FileManager.default.copyItem(at: url, to: newURLOfCopiedItem)
+
+            self.itemsForSorting.append(newURLOfCopiedItem)
+
+            SettingViewController().sortingOnOff()
         } catch {
             print(error.localizedDescription)
         }
     }
 
     func removeItem(at index: Int) {
-        let itemURL = items[index]
-        
+        let itemURL = itemsForSorting[index]
+
+        itemsForSorting.remove(at: index)
+
         try? FileManager.default.removeItem(at: itemURL)
     }
 }
