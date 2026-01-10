@@ -84,10 +84,35 @@ class PostTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Actions
+
+    @objc private func doubleTapAction() {
+        let imageData = self.imageImageView.image?.pngData() ?? Data()
+
+        CoreDataManager.shared.addToCoreData(
+            authorLabel: self.authorLabel.text ?? "",
+            imageData: imageData,
+            descriptionLabel: self.descriptionLabel.text ?? "",
+            likesLabel: self.likesLabel.text ?? "",
+            viewsLabel: self.viewsLabel.text ?? ""
+        )
+    }
+
     // MARK: - Private
 
     private func setupTableViewCell() {
         self.selectionStyle = .none
+
+        self.contentView.isUserInteractionEnabled = true
+
+        let gestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(doubleTapAction)
+        )
+
+        gestureRecognizer.numberOfTapsRequired = 2
+
+        self.contentView.addGestureRecognizer(gestureRecognizer)
     }
 
     private func addSubviews() {
@@ -139,5 +164,15 @@ class PostTableViewCell: UITableViewCell {
         descriptionLabel.text = model.description
         likesLabel.text = "Likes: \(model.likes)"
         viewsLabel.text = "Views: \(model.views)"
+    }
+
+    func updateForCoreData(_ model: CoreDataPostModel) {
+        authorLabel.text = model.authorLabel
+
+        imageImageView.image = UIImage(data: model.imageData ?? Data())
+
+        descriptionLabel.text = model.descriptionLabel
+        likesLabel.text = "\(model.likesLabel ?? "")"
+        viewsLabel.text = "\(model.viewsLabel ?? "")"
     }
 }
