@@ -50,7 +50,7 @@ class ProfileViewController: UIViewController {
         super.viewWillAppear(animated)
 
         self.navigationItem.title = "Profile"
-        self.navigationController?.navigationBar.isHidden = true
+        self.navigationController?.navigationBar.isHidden = false
 
         profileTableView.indexPathsForSelectedRows?.forEach { profileTableView.deselectRow(at: $0, animated: false) }
     }
