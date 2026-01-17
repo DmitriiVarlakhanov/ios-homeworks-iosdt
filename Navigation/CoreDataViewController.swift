@@ -12,7 +12,9 @@ class CoreDataViewController: UIViewController {
 
     // MARK: - Properties
 
-    private lazy var tableView: UITableView = {
+    var array: [CoreDataPostModel] = CoreDataManager.shared.fetchFromCoreData()
+
+    lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -43,10 +45,29 @@ class CoreDataViewController: UIViewController {
         self.addSubviews()
         self.setupConstraints()
         self.setupTableView()
+        self.setupNavigationBar()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
+        self.array = CoreDataManager.shared.fetchFromCoreData()
+
+        self.tableView.reloadData()
+    }
+
+    // MARK: - Actions
+
+    @objc private func addFilter() {
+        let coreDataFilterAuthorViewController = CoreDataFilterAuthorViewController()
+
+        coreDataFilterAuthorViewController.coreDataViewController = self
+
+        self.present(coreDataFilterAuthorViewController, animated: true)
+    }
+
+    @objc private func cancelFilter() {
+        self.array = CoreDataManager.shared.fetchFromCoreData()
 
         self.tableView.reloadData()
     }
@@ -92,13 +113,32 @@ class CoreDataViewController: UIViewController {
         )
 
         tableView.dataSource = self
+        tableView.delegate = self
+    }
+
+    private func setupNavigationBar() {
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "magnifyingglass.circle"),
+            style: .done,
+            target: self,
+            action: #selector(addFilter)
+        )
+
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: "Cancel",
+            style: .plain,
+            target: self,
+            action: #selector(cancelFilter)
+        )
     }
 }
+
+    // MARK: - UITableViewDataSource, UITableViewDelegate implementations
 
 extension CoreDataViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
-        return CoreDataManager.shared.fetchFromCoreData().count
+        return self.array.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -109,12 +149,33 @@ extension CoreDataViewController: UITableViewDataSource {
             fatalError("could not dequeueReusableCell")
         }
 
-        let array = CoreDataManager.shared.fetchFromCoreData()
-
         cell.contentView.isUserInteractionEnabled = false
 
-        cell.updateForCoreData(array[indexPath.row])
+        cell.updateForCoreData(self.array[indexPath.row])
 
         return cell
     }
 }
+
+extension CoreDataViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let action = UIContextualAction(
+            style: .destructive,
+            title: "Delete") { action, view, completionHandler in
+
+                CoreDataManager.shared.deleteFromCoreData(post: self.array[indexPath.row])
+
+                self.array.remove(at: indexPath.row)
+
+                tableView.deleteRows(at: [indexPath], with: .automatic)
+
+                completionHandler(true)
+            }
+
+        let swipeActionsConfiguration = UISwipeActionsConfiguration(actions: [action])
+
+        return swipeActionsConfiguration
+    }
+}
+
+
