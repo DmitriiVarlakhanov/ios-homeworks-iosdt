@@ -66,14 +66,12 @@ class CoreDataFilterAuthorViewController: UIViewController {
             return
         }
 
-        let request = CoreDataPostModel.fetchRequest()
-        request.predicate = NSPredicate(format: "authorLabel==%@", text)
+        self.coreDataViewController?.fetchedResultsController.fetchRequest.predicate = NSPredicate(format: "authorLabel==%@", text)
 
         do {
-            let result = try CoreDataManager.shared.persistentContainer.viewContext.fetch(request)
+            try coreDataViewController?.fetchedResultsController.performFetch()
 
-            self.coreDataViewController!.array = result
-            self.coreDataViewController!.tableView.reloadData()
+            coreDataViewController?.tableView.reloadData()
         } catch {
             print(error.localizedDescription)
         }
