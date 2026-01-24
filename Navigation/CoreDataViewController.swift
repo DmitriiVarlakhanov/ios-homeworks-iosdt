@@ -7,12 +7,29 @@
 
 import UIKit
 import StorageService
+import CoreData
 
 class CoreDataViewController: UIViewController {
 
     // MARK: - Properties
 
-    var array: [CoreDataPostModel] = CoreDataManager.shared.fetchFromCoreData()
+    lazy var fetchedResultsController: NSFetchedResultsController = {
+        let fetchRequest = CoreDataPostModel.fetchRequest()
+
+        let sortDescriptor = NSSortDescriptor(key: "authorLabel", ascending: true)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+
+        let fetchedResultsController = NSFetchedResultsController(
+            fetchRequest: fetchRequest,
+            managedObjectContext: CoreDataManager.shared.persistentContainer.viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+
+        fetchedResultsController.delegate = self
+
+        return fetchedResultsController
+    }()
 
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
@@ -51,9 +68,13 @@ class CoreDataViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        self.array = CoreDataManager.shared.fetchFromCoreData()
+        do {
+            try self.fetchedResultsController.performFetch()
 
-        self.tableView.reloadData()
+            tableView.reloadData()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 
     // MARK: - Actions
@@ -67,7 +88,16 @@ class CoreDataViewController: UIViewController {
     }
 
     @objc private func cancelFilter() {
-        self.array = CoreDataManager.shared.fetchFromCoreData()
+
+        self.fetchedResultsController.fetchRequest.predicate = nil
+
+        do {
+            try self.fetchedResultsController.performFetch()
+
+            self.tableView.reloadData()
+        } catch {
+            print(error.localizedDescription)
+        }
 
         self.tableView.reloadData()
     }
@@ -138,7 +168,7 @@ class CoreDataViewController: UIViewController {
 extension CoreDataViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
-        return self.array.count
+        return fetchedResultsController.sections?.first?.numberOfObjects ?? 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -151,7 +181,9 @@ extension CoreDataViewController: UITableViewDataSource {
 
         cell.contentView.isUserInteractionEnabled = false
 
-        cell.updateForCoreData(self.array[indexPath.row])
+        let post = fetchedResultsController.object(at: indexPath)
+
+        cell.updateForCoreData(post)
 
         return cell
     }
@@ -163,11 +195,9 @@ extension CoreDataViewController: UITableViewDelegate {
             style: .destructive,
             title: "Delete") { action, view, completionHandler in
 
-                CoreDataManager.shared.deleteFromCoreData(post: self.array[indexPath.row])
+                let post = self.fetchedResultsController.object(at: indexPath)
 
-                self.array.remove(at: indexPath.row)
-
-                tableView.deleteRows(at: [indexPath], with: .automatic)
+                CoreDataManager.shared.deleteFromCoreData(post: post)
 
                 completionHandler(true)
             }
@@ -175,6 +205,33 @@ extension CoreDataViewController: UITableViewDelegate {
         let swipeActionsConfiguration = UISwipeActionsConfiguration(actions: [action])
 
         return swipeActionsConfiguration
+    }
+}
+
+    // MARK: - NSFetchedResultsControllerDelegate implementation
+
+extension CoreDataViewController: NSFetchedResultsControllerDelegate {
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
+        self.tableView.beginUpdates()
+    }
+
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
+        self.tableView.endUpdates()
+    }
+
+    func controller(_ controller: NSFetchedResultsController<any NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            return
+        case .move:
+            return
+        case .delete:
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+        case .update:
+            tableView.reloadData()
+        @unknown default:
+            return
+        }
     }
 }
 
