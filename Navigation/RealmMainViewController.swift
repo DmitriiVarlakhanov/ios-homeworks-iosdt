@@ -81,6 +81,8 @@ class RealmMainViewController: UIViewController {
 
         self.addSubviews()
         self.setupConstraints()
+
+        RealmDatabaseEncoded.shared.setupCustomDatabase()
     }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
